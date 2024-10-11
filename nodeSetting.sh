@@ -25,9 +25,17 @@ if [ "$OS" == "Linux" ]; then
         if [ $? -eq 0 ]; then
             echo "Kubeadm 초기화 완료. 클러스터 정보를 확인합니다..."
 
-            # 클러스터 정보 및 노드 상태 확인
-            export KUBECONFIG=/etc/kubernetes/admin.conf
-            echo "KUBECONFIG 설정 완료"
+            # 유저가 루트가 아닌 경우 설정
+            if [ "$EUID" -ne 0 ]; then
+                echo "루트 유저가 아니므로, 현재 사용자에 대해 kubeconfig를 설정합니다..."
+                mkdir -p $HOME/.kube
+                sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+                sudo chown $(id -u):$(id -g) $HOME/.kube/config
+                echo "kubeconfig 설정 완료"
+            else
+                echo "루트 유저입니다. KUBECONFIG 환경 변수를 설정합니다..."
+                export KUBECONFIG=/etc/kubernetes/admin.conf
+            fi
 
             # 클러스터 정보 확인
             kubectl cluster-info
