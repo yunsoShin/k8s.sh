@@ -5,7 +5,14 @@ OS="$(uname -s)"
 if [ "$OS" == "Linux" ]; then
     # IP 주소 가져오기
     MASTER_IP=$(hostname -I | awk '{print $1}')
-
+    if ! command -v socat &> /dev/null; then
+        echo "socat이 설치되어 있지 않습니다. 설치를 진행합니다..."
+        sudo apt-get update
+        sudo apt-get install -y socat
+        echo "socat 설치 완료"
+    else
+        echo "socat이 이미 설치되어 있습니다."
+    fi
     # 사용자 입력 받기
     read -p "Master(M) 또는 Worker(W) 노드를 설정하시겠습니까? (M/W): " NODE_TYPE
 
